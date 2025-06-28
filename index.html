@@ -115,12 +115,8 @@
                     <label for="product-image" class="block text-gray-700 text-sm font-bold mb-2">URL Gambar (opsional):</label>
                     <input type="text" id="product-image" placeholder="URL Gambar Produk">
                     <p class="text-sm text-gray-500 mb-4">
-                        Contoh: https://placehold.co/300x200/cccccc/333333?text=Produk<br>
-                        Untuk Google Drive, pastikan sudah 'Public' dan gunakan format:<br>
-                        **https://drive.google.com/uc?export=view&id=ID_FILE_ANDA_DI_GOOGLE_DRIVE**<br>
-                        Misal: Untuk link https://drive.google.com/file/d/17dYumvFH2vr7040L8kq6frf4fq4hepbg/view?usp=sharing<br>
-                        ID File adalah `17dYumvFH2vr7040L8kq6frf4fq4hepbg`.<br>
-                        Maka URL yang dimasukkan: `https://drive.google.com/uc?export=view&id=17dYumvFH2vr7040L8kq6frf4fq4hepbg`
+                        Contoh: `images/nama-gambar-anda.jpg` atau `https://placehold.co/300x200/cccccc/333333?text=Produk`
+                        <br><strong class="text-red-600">Disarankan untuk menggunakan jalur relatif (misal: images/nama-gambar.png) jika gambar disimpan di folder `images` di repositori GitHub Anda.</strong>
                     </p>
 
                     <button id="save-product-button" class="btn-primary w-full mb-2">Simpan Produk</button>
@@ -183,8 +179,8 @@
         // --- Data Simulasi ---
         let products = JSON.parse(localStorage.getItem('products')) || [
             // Menggunakan placeholder yang berfungsi untuk memastikan tampilan awal.
-            // Jika Anda ingin menggunakan Google Drive, pastikan izin berbagi adalah 'Anyone with the link' (Siapa saja yang memiliki tautan)
-            // dan gunakan format URL direct link: https://drive.google.com/uc?export=view&id=ID_FILE_ANDA
+            // Jika Anda ingin menggunakan gambar lokal dari GitHub, pastikan file gambar ada di jalur yang benar
+            // (misal: images/alat-musik-tradisional.jpg jika ada folder 'images' di root proyek)
             { id: 'p1', name: 'Alat Musik Tradisional', price: 250000, description: 'Alat musik tradisional yang indah, cocok untuk melestarikan budaya.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Alat+Musik' },
             { id: 'p2', name: 'Celana Jeans Slim Fit', price: 280000, description: 'Celana jeans nyaman dengan potongan slim fit modern.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Celana+Jeans' },
             { id: 'p3', name: 'Sepatu Sneakers Pria', price: 350000, description: 'Sneakers ringan dan trendi, cocok untuk aktivitas sehari-hari.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Sneakers' },
@@ -324,7 +320,7 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card flex flex-col items-start';
                 productCard.innerHTML = `
-                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-md mb-4" onerror="this.onerror=null; console.error('Gagal memuat gambar produk. URL yang dicoba: ' + this.src + '. Pastikan tautan langsung Google Drive valid dan file bersifat publik.'); this.src='https://placehold.co/300x200/cccccc/333333?text=Gambar+Rusak';">
+                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-md mb-4" onerror="this.onerror=null; console.error('Gagal memuat gambar produk dari ' + this.src + '. Pastikan jalur gambar benar dan file ada di repositori GitHub.'); this.src='https://placehold.co/300x200/cccccc/333333?text=Gambar+Rusak';">
                     <h3 class="text-xl font-semibold mb-2 text-gray-800 flex-grow">${product.name}</h3>
                     <p class="text-gray-600 text-sm mb-3 line-clamp-3">${product.description}</p>
                     <p class="text-lg font-bold text-blue-600 mb-4">${formatRupiah(product.price)}</p>
@@ -353,7 +349,7 @@
                     cartItemDiv.className = 'flex items-center justify-between border-b border-gray-200 py-4 last:border-b-0';
                     cartItemDiv.innerHTML = `
                         <div class="flex items-center">
-                            <img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md mr-4" onerror="this.onerror=null; console.error('Gagal memuat gambar keranjang. URL yang dicoba: ' + this.src + '. Pastikan tautan langsung Google Drive valid dan file bersifat publik.'); this.src='https://placehold.co/64x64/cccccc/333333?text=No+Img';">
+                            <img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md mr-4" onerror="this.onerror=null; console.error('Gagal memuat gambar keranjang dari ' + this.src + '. Pastikan jalur gambar benar dan file ada di repositori GitHub.'); this.src='https://placehold.co/64x64/cccccc/333333?text=No+Img';">
                             <div>
                                 <h4 class="font-semibold text-gray-800">${product.name}</h4>
                                 <p class="text-gray-600">${formatRupiah(product.price)}</p>
@@ -387,7 +383,7 @@
                 productItem.className = 'flex items-center justify-between border border-gray-200 p-4 rounded-md shadow-sm bg-white';
                 productItem.innerHTML = `
                     <div class="flex items-center">
-                        <img src="${product.imageUrl}" alt="${product.name}" class="w-12 h-12 object-cover rounded-md mr-4" onerror="this.onerror=null; console.error('Gagal memuat gambar admin. URL yang dicoba: ' + this.src + '. Pastikan tautan langsung Google Drive valid dan file bersifat publik.'); this.src='https://placehold.co/48x48/cccccc/333333?text=No+Img';">
+                        <img src="${product.imageUrl}" alt="${product.name}" class="w-12 h-12 object-cover rounded-md mr-4" onerror="this.onerror=null; console.error('Gagal memuat gambar admin dari ' + this.src + '. Pastikan jalur gambar benar dan file ada di repositori GitHub.'); this.src='https://placehold.co/48x48/cccccc/333333?text=No+Img';">
                         <div>
                             <h4 class="font-semibold text-gray-800">${product.name}</h4>
                             <p class="text-gray-600">${formatRupiah(product.price)}</p>
@@ -637,6 +633,7 @@
             const name = productNameInput.value.trim();
             const price = parseInt(productPriceInput.value);
             const description = productDescriptionInput.value.trim();
+            // Menggunakan imageUrl langsung dari input atau placeholder jika kosong
             const imageUrl = productImageInput.value.trim() || `https://placehold.co/300x200/cccccc/333333?text=${encodeURIComponent(name || 'Produk')}`;
 
             if (!name || isNaN(price) || price <= 0 || !description) {
