@@ -114,7 +114,14 @@
 
                     <label for="product-image" class="block text-gray-700 text-sm font-bold mb-2">URL Gambar (opsional):</label>
                     <input type="text" id="product-image" placeholder="URL Gambar Produk">
-                    <p class="text-sm text-gray-500 mb-4">Contoh: https://placehold.co/300x200/cccccc/333333?text=Produk atau tautan langsung Google Drive (misal: https://drive.google.com/uc?export=view&id=FILE_ID)</p>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Contoh: https://placehold.co/300x200/cccccc/333333?text=Produk<br>
+                        Untuk Google Drive, pastikan sudah 'Public' dan gunakan format:<br>
+                        **https://drive.google.com/uc?export=view&id=ID_FILE_ANDA_DI_GOOGLE_DRIVE**<br>
+                        Misal: Untuk link https://drive.google.com/file/d/17dYumvFH2vr7040L8kq6frf4fq4hepbg/view?usp=sharing<br>
+                        ID File adalah `17dYumvFH2vr7040L8kq6frf4fq4hepbg`.<br>
+                        Maka URL yang dimasukkan: `https://drive.google.com/uc?export=view&id=17dYumvFH2vr7040L8kq6frf4fq4hepbg`
+                    </p>
 
                     <button id="save-product-button" class="btn-primary w-full mb-2">Simpan Produk</button>
                     <button id="cancel-edit-product-button" class="btn-secondary w-full hidden">Batal Edit</button>
@@ -175,7 +182,8 @@
     <script>
         // --- Data Simulasi ---
         let products = JSON.parse(localStorage.getItem('products')) || [
-            { id: 'p1', name: 'Kemeja Pria Casual', price: 150000, description: 'Kemeja katun berkualitas tinggi untuk tampilan santai namun stylish.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Kemeja+Pria' },
+            // Contoh produk dengan Google Drive direct link
+            { id: 'p1', name: 'Alat Musik Tradisional', price: 250000, description: 'Alat musik tradisional yang indah, cocok untuk melestarikan budaya.', imageUrl: 'https://drive.google.com/uc?export=view&id=1je8g7BJvjcdfvP0r6cMzbNIcRpc4lyfl' },
             { id: 'p2', name: 'Celana Jeans Slim Fit', price: 280000, description: 'Celana jeans nyaman dengan potongan slim fit modern.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Celana+Jeans' },
             { id: 'p3', name: 'Sepatu Sneakers Pria', price: 350000, description: 'Sneakers ringan dan trendi, cocok untuk aktivitas sehari-hari.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Sneakers' },
             { id: 'p4', name: 'Tas Ransel Laptop', price: 200000, description: 'Ransel multifungsi dengan kompartemen laptop, ideal untuk kerja atau kuliah.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Tas+Laptop' },
