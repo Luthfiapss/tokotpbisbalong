@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace Sederhana</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="flex flex-col min-h-screen">
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+        <div class="container flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-inter">My Marketplace</h1>
+            <nav>
+                <ul class="flex space-x-4">
+                    <li><button id="nav-home" class="nav-link text-white hover:bg-blue-700 active">Beranda</button></li>
+                    <li><button id="nav-cart" class="nav-link text-white hover:bg-blue-700">Keranjang (<span id="cart-count">0</span>)</button></li>
+                    <li><button id="nav-admin-login" class="nav-link text-white hover:bg-blue-700">Admin Login</button></li>
+                    <li id="admin-menu-item" class="hidden"><button id="nav-admin-dashboard" class="nav-link text-white hover:bg-blue-700">Admin Dashboard</button></li>
+                    <li id="admin-logout-item" class="hidden"><button id="nav-admin-logout" class="nav-link text-white hover:bg-blue-700">Logout</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container mt-8">
+        <!-- Home Section (Product Listing) -->
+        <section id="home-section" class="mb-8 block">
+            <h2 class="text-3xl font-semibold mb-6 text-gray-800">Daftar Produk</h2>
+            <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Products will be loaded here by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Cart Section -->
+        <section id="cart-section" class="mb-8 hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-gray-800">Keranjang Belanja</h2>
+            <div id="cart-items" class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <!-- Cart items will be loaded here by JavaScript -->
+                <p id="empty-cart-message" class="text-gray-500 text-center">Keranjang Anda kosong.</p>
+            </div>
+            <div class="flex justify-between items-center bg-white p-6 rounded-lg shadow-md mb-6">
+                <span class="text-xl font-bold text-gray-800">Total: Rp <span id="cart-total">0</span></span>
+                <button id="checkout-button" class="btn-success">Lanjutkan ke Pembayaran</button>
+            </div>
+        </section>
+
+        <!-- Checkout Section -->
+        <section id="checkout-section" class="mb-8 hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-gray-800">Pembayaran</h2>
+            <div class="admin-section">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">Informasi Pembayaran</h3>
+                <div class="mb-4">
+                    <label for="payment-method-select" class="block text-gray-700 text-sm font-bold mb-2">Metode Pembayaran:</label>
+                    <select id="payment-method-select" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <!-- Options loaded by JS -->
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="customer-name" class="block text-gray-700 text-sm font-bold mb-2">Nama Lengkap:</label>
+                    <input type="text" id="customer-name" placeholder="Masukkan nama lengkap Anda" class="w-full p-3 border border-gray-300 rounded-md">
+                </div>
+                <div class="mb-4">
+                    <label for="customer-address" class="block text-gray-700 text-sm font-bold mb-2">Alamat Pengiriman:</label>
+                    <textarea id="customer-address" placeholder="Masukkan alamat lengkap Anda" rows="3" class="w-full p-3 border border-gray-300 rounded-md"></textarea>
+                </div>
+                <button id="place-order-button" class="btn-success w-full">Konfirmasi Pesanan</button>
+            </div>
+        </section>
+
+        <!-- Admin Login Section -->
+        <section id="admin-login-section" class="mb-8 hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-gray-800">Login Admin</h2>
+            <div class="admin-section">
+                <label for="admin-username" class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                <input type="text" id="admin-username" placeholder="Username Admin">
+                <label for="admin-password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                <input type="password" id="admin-password" placeholder="Password Admin">
+                <button id="login-button" class="btn-primary w-full">Login</button>
+                <p id="login-message" class="text-red-500 mt-4 hidden"></p>
+            </div>
+        </section>
+
+        <!-- Admin Dashboard Section -->
+        <section id="admin-dashboard-section" class="mb-8 hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-gray-800">Dashboard Admin</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Add Product Form -->
+                <div class="admin-section">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-700">Tambah/Edit Produk</h3>
+                    <input type="hidden" id="product-id">
+                    <label for="product-name" class="block text-gray-700 text-sm font-bold mb-2">Nama Produk:</label>
+                    <input type="text" id="product-name" placeholder="Nama Produk">
+
+                    <label for="product-price" class="block text-gray-700 text-sm font-bold mb-2">Harga (Rp):</label>
+                    <input type="number" id="product-price" placeholder="Harga" min="0">
+
+                    <label for="product-description" class="block text-gray-700 text-sm font-bold mb-2">Deskripsi:</label>
+                    <textarea id="product-description" placeholder="Deskripsi Produk" rows="3"></textarea>
+
+                    <label for="product-image" class="block text-gray-700 text-sm font-bold mb-2">URL Gambar (opsional):</label>
+                    <input type="text" id="product-image" placeholder="URL Gambar Produk">
+                    <p class="text-sm text-gray-500 mb-4">Contoh: https://placehold.co/300x200/cccccc/333333?text=Produk</p>
+
+                    <button id="save-product-button" class="btn-primary w-full mb-2">Simpan Produk</button>
+                    <button id="cancel-edit-product-button" class="btn-secondary w-full hidden">Batal Edit</button>
+                </div>
+
+                <!-- Product Management List -->
+                <div class="admin-section">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-700">Kelola Produk</h3>
+                    <div id="admin-product-list" class="space-y-4">
+                        <!-- Admin products will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Sales Graph (Simulated) -->
+                <div class="admin-section lg:col-span-2">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-700">Grafik Penjualan (Simulasi)</h3>
+                    <div class="bg-gray-100 p-4 rounded-md">
+                        <p class="text-gray-700 mb-2">Total Penjualan Bulan Ini: Rp <span id="total-sales">0</span></p>
+                        <p class="text-gray-600">Detail Penjualan:</p>
+                        <ul id="sales-detail" class="list-disc list-inside text-gray-600">
+                            <!-- Sales data will be loaded here -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Payment Method Management -->
+                <div class="admin-section lg:col-span-2">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-700">Kelola Metode Pembayaran</h3>
+                    <label for="new-payment-method" class="block text-gray-700 text-sm font-bold mb-2">Nama Metode Baru:</label>
+                    <input type="text" id="new-payment-method" placeholder="Contoh: Transfer Bank BCA, Dana, OVO">
+                    <button id="add-payment-method-button" class="btn-primary mb-4">Tambah Metode Pembayaran</button>
+
+                    <div id="payment-methods-list" class="space-y-2">
+                        <!-- Payment methods will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white p-4 text-center mt-8">
+        <p>&copy; 2025 Marketplace Sederhana. Hak Cipta Dilindungi.</p>
+    </footer>
+
+    <!-- Custom Modal for Messages -->
+    <div id="message-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" id="modal-close-button">&times;</span>
+            <h3 id="modal-title" class="text-xl font-semibold mb-4 text-gray-800">Pesan</h3>
+            <p id="modal-message" class="text-gray-700"></p>
+            <div class="mt-4 flex justify-end">
+                <button id="modal-ok-button" class="btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Data Simulasi ---
+        let products = JSON.parse(localStorage.getItem('products')) || [
+            { id: 'p1', name: 'Kemeja Pria Casual', price: 150000, description: 'Kemeja katun berkualitas tinggi untuk tampilan santai namun stylish.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Kemeja+Pria' },
+            { id: 'p2', name: 'Celana Jeans Slim Fit', price: 280000, description: 'Celana jeans nyaman dengan potongan slim fit modern.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Celana+Jeans' },
+            { id: 'p3', name: 'Sepatu Sneakers Pria', price: 350000, description: 'Sneakers ringan dan trendi, cocok untuk aktivitas sehari-hari.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Sneakers' },
+            { id: 'p4', name: 'Tas Ransel Laptop', price: 200000, description: 'Ransel multifungsi dengan kompartemen laptop, ideal untuk kerja atau kuliah.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Tas+Laptop' },
+            { id: 'p5', name: 'Jam Tangan Digital', price: 95000, description: 'Jam tangan stylish dengan fitur digital lengkap.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Jam+Tangan' }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let paymentMethods = JSON.parse(localStorage.getItem('paymentMethods')) || [
+            'Transfer Bank BCA',
+            'Transfer Bank Mandiri',
+            'OVO',
+            'Dana',
+            'GoPay'
+        ];
+        let salesData = JSON.parse(localStorage.getItem('salesData')) || [
+            { date: '2025-05-01', amount: 150000 },
+            { date: '2025-05-05', amount: 280000 },
+            { date: '2025-05-10', amount: 350000 },
+            { date: '2025-05-15', amount: 200000 },
+            { date: '2025-05-20', amount: 95000 }
+        ]; // Simple sales data
+
+        // Admin credentials (for demonstration only, DO NOT use in production)
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'password123';
+        let isAdminLoggedIn = false;
+
+        // --- DOM Elements ---
+        const sections = {
+            home: document.getElementById('home-section'),
+            cart: document.getElementById('cart-section'),
+            checkout: document.getElementById('checkout-section'),
+            adminLogin: document.getElementById('admin-login-section'),
+            adminDashboard: document.getElementById('admin-dashboard-section')
+        };
+
+        const navLinks = {
+            home: document.getElementById('nav-home'),
+            cart: document.getElementById('nav-cart'),
+            adminLogin: document.getElementById('nav-admin-login'),
+            adminDashboard: document.getElementById('nav-admin-dashboard'),
+            adminLogout: document.getElementById('nav-admin-logout')
+        };
+
+        const productListDiv = document.getElementById('product-list');
+        const cartItemsDiv = document.getElementById('cart-items');
+        const cartTotalSpan = document.getElementById('cart-total');
+        const cartCountSpan = document.getElementById('cart-count');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
+        const checkoutButton = document.getElementById('checkout-button');
+        const placeOrderButton = document.getElementById('place-order-button');
+        const paymentMethodSelect = document.getElementById('payment-method-select');
+        const customerNameInput = document.getElementById('customer-name');
+        const customerAddressInput = document.getElementById('customer-address');
+
+        const adminUsernameInput = document.getElementById('admin-username');
+        const adminPasswordInput = document.getElementById('admin-password');
+        const loginButton = document.getElementById('login-button');
+        const loginMessage = document.getElementById('login-message');
+        const adminMenuItem = document.getElementById('admin-menu-item');
+        const adminLogoutItem = document.getElementById('admin-logout-item');
+
+        const productIdInput = document.getElementById('product-id');
+        const productNameInput = document.getElementById('product-name');
+        const productPriceInput = document.getElementById('product-price');
+        const productDescriptionInput = document.getElementById('product-description');
+        const productImageInput = document.getElementById('product-image');
+        const saveProductButton = document.getElementById('save-product-button');
+        const cancelEditProductButton = document.getElementById('cancel-edit-product-button');
+        const adminProductListDiv = document.getElementById('admin-product-list');
+
+        const totalSalesSpan = document.getElementById('total-sales');
+        const salesDetailList = document.getElementById('sales-detail');
+
+        const newPaymentMethodInput = document.getElementById('new-payment-method');
+        const addPaymentMethodButton = document.getElementById('add-payment-method-button');
+        const paymentMethodsListDiv = document.getElementById('payment-methods-list');
+
+        // Modal elements
+        const messageModal = document.getElementById('message-modal');
+        const modalCloseButton = document.getElementById('modal-close-button');
+        const modalOkButton = document.getElementById('modal-ok-button');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+
+        // --- Utility Functions ---
+        function showSection(sectionId) {
+            for (let key in sections) {
+                sections[key].classList.add('hidden');
+            }
+            sections[sectionId].classList.remove('hidden');
+
+            for (let key in navLinks) {
+                navLinks[key].classList.remove('active');
+            }
+            if (navLinks[sectionId]) {
+                navLinks[sectionId].classList.add('active');
+            } else if (sectionId === 'home') { // Default to home if no specific nav link for section
+                navLinks.home.classList.add('active');
+            }
+        }
+
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            messageModal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            messageModal.classList.add('hidden');
+        }
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(number);
+        }
+
+        function saveState() {
+            localStorage.setItem('products', JSON.stringify(products));
+            localStorage.setItem('cart', JSON.stringify(cart));
+            localStorage.setItem('paymentMethods', JSON.stringify(paymentMethods));
+            localStorage.setItem('salesData', JSON.stringify(salesData));
+        }
+
+        // --- Render Functions ---
+        function renderProducts() {
+            productListDiv.innerHTML = '';
+            if (products.length === 0) {
+                productListDiv.innerHTML = '<p class="col-span-full text-center text-gray-500">Belum ada produk yang tersedia.</p>';
+                return;
+            }
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card flex flex-col items-start';
+                productCard.innerHTML = `
+                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-md mb-4 onerror="this.onerror=null;this.src='https://placehold.co/300x200/cccccc/333333?text=No+Image';"">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 flex-grow">${product.name}</h3>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-3">${product.description}</p>
+                    <p class="text-lg font-bold text-blue-600 mb-4">${formatRupiah(product.price)}</p>
+                    <button class="add-to-cart-button btn-primary w-full" data-id="${product.id}">Tambah ke Keranjang</button>
+                `;
+                productListDiv.appendChild(productCard);
+            });
+            attachAddToCartListeners();
+        }
+
+        function renderCart() {
+            cartItemsDiv.innerHTML = '';
+            let total = 0;
+
+            if (cart.length === 0) {
+                emptyCartMessage.classList.remove('hidden');
+                checkoutButton.disabled = true;
+            } else {
+                emptyCartMessage.classList.add('hidden');
+                checkoutButton.disabled = false;
+                cart.forEach(item => {
+                    const product = products.find(p => p.id === item.productId);
+                    if (!product) return; // Product might have been deleted by admin
+
+                    const cartItemDiv = document.createElement('div');
+                    cartItemDiv.className = 'flex items-center justify-between border-b border-gray-200 py-4 last:border-b-0';
+                    cartItemDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md mr-4 onerror="this.onerror=null;this.src='https://placehold.co/64x64/cccccc/333333?text=No+Image';"">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">${product.name}</h4>
+                                <p class="text-gray-600">${formatRupiah(product.price)}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button class="quantity-minus btn-secondary text-sm px-2 py-1 rounded-md" data-id="${product.id}">-</button>
+                            <span class="text-lg font-semibold">${item.quantity}</span>
+                            <button class="quantity-plus btn-secondary text-sm px-2 py-1 rounded-md" data-id="${product.id}">+</button>
+                            <button class="remove-from-cart-button btn-danger text-sm px-2 py-1 rounded-md" data-id="${product.id}">Hapus</button>
+                        </div>
+                    `;
+                    cartItemsDiv.appendChild(cartItemDiv);
+                    total += product.price * item.quantity;
+                });
+            }
+
+            cartTotalSpan.textContent = total;
+            cartCountSpan.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            attachCartItemListeners();
+        }
+
+        function renderAdminProducts() {
+            adminProductListDiv.innerHTML = '';
+            if (products.length === 0) {
+                adminProductListDiv.innerHTML = '<p class="text-center text-gray-500">Belum ada produk yang dikelola.</p>';
+                return;
+            }
+            products.forEach(product => {
+                const productItem = document.createElement('div');
+                productItem.className = 'flex items-center justify-between border border-gray-200 p-4 rounded-md shadow-sm bg-white';
+                productItem.innerHTML = `
+                    <div class="flex items-center">
+                        <img src="${product.imageUrl}" alt="${product.name}" class="w-12 h-12 object-cover rounded-md mr-4 onerror="this.onerror=null;this.src='https://placehold.co/48x48/cccccc/333333?text=No+Image';"">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${product.name}</h4>
+                            <p class="text-gray-600">${formatRupiah(product.price)}</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="edit-product-button btn-secondary text-sm px-3 py-1" data-id="${product.id}">Edit</button>
+                        <button class="delete-product-button btn-danger text-sm px-3 py-1" data-id="${product.id}">Hapus</button>
+                    </div>
+                `;
+                adminProductListDiv.appendChild(productItem);
+            });
+            attachAdminProductListeners();
+        }
+
+        function renderSalesGraph() {
+            let totalSales = salesData.reduce((sum, sale) => sum + sale.amount, 0);
+            totalSalesSpan.textContent = totalSales;
+
+            salesDetailList.innerHTML = '';
+            if (salesData.length === 0) {
+                salesDetailList.innerHTML = '<li>Belum ada data penjualan.</li>';
+                return;
+            }
+            salesData.forEach(sale => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${sale.date}: ${formatRupiah(sale.amount)}`;
+                salesDetailList.appendChild(listItem);
+            });
+        }
+
+        function renderPaymentMethods() {
+            paymentMethodSelect.innerHTML = '';
+            paymentMethodsListDiv.innerHTML = '';
+
+            if (paymentMethods.length === 0) {
+                paymentMethodSelect.innerHTML = '<option value="">Tidak ada metode pembayaran</option>';
+                paymentMethodsListDiv.innerHTML = '<p class="text-center text-gray-500">Belum ada metode pembayaran.</p>';
+                return;
+            }
+
+            // For User Checkout
+            paymentMethods.forEach(method => {
+                const option = document.createElement('option');
+                option.value = method;
+                option.textContent = method;
+                paymentMethodSelect.appendChild(option);
+            });
+
+            // For Admin Management
+            paymentMethods.forEach((method, index) => {
+                const methodItem = document.createElement('div');
+                methodItem.className = 'flex items-center justify-between border border-gray-200 p-3 rounded-md shadow-sm bg-white';
+                methodItem.innerHTML = `
+                    <span class="text-gray-800">${method}</span>
+                    <button class="delete-payment-method-button btn-danger text-sm px-3 py-1" data-index="${index}">Hapus</button>
+                `;
+                paymentMethodsListDiv.appendChild(methodItem);
+            });
+            attachPaymentMethodListeners();
+        }
+
+        // --- Event Listeners and Handlers ---
+        function attachAddToCartListeners() {
+            document.querySelectorAll('.add-to-cart-button').forEach(button => {
+                button.onclick = (event) => {
+                    const productId = event.target.dataset.id;
+                    const existingItem = cart.find(item => item.productId === productId);
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        cart.push({ productId: productId, quantity: 1 });
+                    }
+                    saveState();
+                    renderCart();
+                    showModal('Berhasil', 'Produk ditambahkan ke keranjang!');
+                };
+            });
+        }
+
+        function attachCartItemListeners() {
+            document.querySelectorAll('.quantity-minus').forEach(button => {
+                button.onclick = (event) => {
+                    const productId = event.target.dataset.id;
+                    const itemIndex = cart.findIndex(item => item.productId === productId);
+                    if (itemIndex !== -1) {
+                        if (cart[itemIndex].quantity > 1) {
+                            cart[itemIndex].quantity--;
+                        } else {
+                            cart.splice(itemIndex, 1); // Remove if quantity becomes 0
+                        }
+                        saveState();
+                        renderCart();
+                    }
+                };
+            });
+
+            document.querySelectorAll('.quantity-plus').forEach(button => {
+                button.onclick = (event) => {
+                    const productId = event.target.dataset.id;
+                    const itemIndex = cart.findIndex(item => item.productId === productId);
+                    if (itemIndex !== -1) {
+                        cart[itemIndex].quantity++;
+                        saveState();
+                        renderCart();
+                    }
+                };
+            });
+
+            document.querySelectorAll('.remove-from-cart-button').forEach(button => {
+                button.onclick = (event) => {
+                    const productId = event.target.dataset.id;
+                    cart = cart.filter(item => item.productId !== productId);
+                    saveState();
+                    renderCart();
+                    showModal('Dihapus', 'Produk dihapus dari keranjang.');
+                };
+            });
+        }
+
+        function attachAdminProductListeners() {
+            document.querySelectorAll('.edit-product-button').forEach(button => {
+                button.onclick = (event) => {
+                    const productId = event.target.dataset.id;
+                    const productToEdit = products.find(p => p.id === productId);
+                    if (productToEdit) {
+                        productIdInput.value = productToEdit.id;
+                        productNameInput.value = productToEdit.name;
+                        productPriceInput.value = productToEdit.price;
+                        productDescriptionInput.value = productToEdit.description;
+                        productImageInput.value = productToEdit.imageUrl;
+                        saveProductButton.textContent = 'Perbarui Produk';
+                        cancelEditProductButton.classList.remove('hidden');
+                    }
+                };
+            });
+
+            document.querySelectorAll('.delete-product-button').forEach(button => {
+                button.onclick = (event) => {
+                    const productId = event.target.dataset.id;
+                    // Remove from products
+                    products = products.filter(p => p.id !== productId);
+                    // Also remove from cart if it exists
+                    cart = cart.filter(item => item.productId !== productId);
+                    saveState();
+                    renderProducts(); // Refresh user view
+                    renderCart(); // Refresh user cart view
+                    renderAdminProducts(); // Refresh admin view
+                    showModal('Berhasil', 'Produk berhasil dihapus!');
+                };
+            });
+        }
+
+        function attachPaymentMethodListeners() {
+            document.querySelectorAll('.delete-payment-method-button').forEach(button => {
+                button.onclick = (event) => {
+                    const indexToDelete = parseInt(event.target.dataset.index);
+                    paymentMethods.splice(indexToDelete, 1);
+                    saveState();
+                    renderPaymentMethods();
+                    showModal('Berhasil', 'Metode pembayaran dihapus!');
+                };
+            });
+        }
+
+        // --- Navigation ---
+        navLinks.home.addEventListener('click', () => showSection('home'));
+        navLinks.cart.addEventListener('click', () => {
+            showSection('cart');
+            renderCart(); // Ensure cart is up-to-date when viewed
+        });
+        navLinks.adminLogin.addEventListener('click', () => showSection('adminLogin'));
+        navLinks.adminDashboard.addEventListener('click', () => showSection('adminDashboard'));
+        navLinks.adminLogout.addEventListener('click', () => {
+            isAdminLoggedIn = false;
+            adminMenuItem.classList.add('hidden');
+            adminLogoutItem.classList.add('hidden');
+            navLinks.adminLogin.classList.remove('hidden');
+            showModal('Logout', 'Anda telah logout dari panel admin.');
+            showSection('home');
+        });
+
+        // --- User Actions ---
+        checkoutButton.addEventListener('click', () => {
+            if (cart.length === 0) {
+                showModal('Peringatan', 'Keranjang Anda kosong. Tambahkan produk terlebih dahulu.');
+                return;
+            }
+            renderPaymentMethods(); // Render payment methods for selection
+            showSection('checkout');
+        });
+
+        placeOrderButton.addEventListener('click', () => {
+            const customerName = customerNameInput.value.trim();
+            const customerAddress = customerAddressInput.value.trim();
+            const paymentMethod = paymentMethodSelect.value;
+
+            if (!customerName || !customerAddress || !paymentMethod) {
+                showModal('Peringatan', 'Harap lengkapi semua detail pembayaran.');
+                return;
+            }
+
+            // Simulate order processing
+            const orderTotal = parseInt(cartTotalSpan.textContent);
+            if (orderTotal > 0) {
+                salesData.push({
+                    date: new Date().toISOString().slice(0, 10), //YYYY-MM-DD
+                    amount: orderTotal
+                });
+            }
+
+            cart = []; // Clear cart after order
+            saveState();
+            renderCart(); // Update cart display
+            renderSalesGraph(); // Update sales graph for admin
+            customerNameInput.value = '';
+            customerAddressInput.value = '';
+            paymentMethodSelect.value = paymentMethods[0] || '';
+
+            showModal('Pesanan Dikonfirmasi', 'Pesanan Anda telah berhasil ditempatkan! Terima kasih telah berbelanja.');
+            showSection('home');
+        });
+
+        // --- Admin Actions ---
+        loginButton.addEventListener('click', () => {
+            const username = adminUsernameInput.value;
+            const password = adminPasswordInput.value;
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                adminMenuItem.classList.remove('hidden');
+                adminLogoutItem.classList.remove('hidden');
+                navLinks.adminLogin.classList.add('hidden'); // Hide login button once logged in
+                showModal('Berhasil Login', 'Selamat datang, Admin!');
+                showSection('adminDashboard');
+                renderAdminProducts();
+                renderSalesGraph();
+                renderPaymentMethods();
+            } else {
+                loginMessage.textContent = 'Username atau password salah.';
+                loginMessage.classList.remove('hidden');
+            }
+        });
+
+        saveProductButton.addEventListener('click', () => {
+            const id = productIdInput.value;
+            const name = productNameInput.value.trim();
+            const price = parseInt(productPriceInput.value);
+            const description = productDescriptionInput.value.trim();
+            const imageUrl = productImageInput.value.trim() || `https://placehold.co/300x200/cccccc/333333?text=${encodeURIComponent(name || 'Produk')}`;
+
+            if (!name || isNaN(price) || price <= 0 || !description) {
+                showModal('Peringatan', 'Harap isi nama produk, harga yang valid, dan deskripsi.');
+                return;
+            }
+
+            if (id) {
+                // Edit existing product
+                const index = products.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    products[index] = { id, name, price, description, imageUrl };
+                    showModal('Berhasil', 'Produk berhasil diperbarui!');
+                }
+            } else {
+                // Add new product
+                const newId = 'p' + (products.length > 0 ? Math.max(...products.map(p => parseInt(p.id.substring(1)))) + 1 : 1);
+                products.push({ id: newId, name, price, description, imageUrl });
+                showModal('Berhasil', 'Produk berhasil ditambahkan!');
+            }
+
+            saveState();
+            renderProducts(); // Update user product list
+            renderAdminProducts(); // Update admin product list
+            // Clear form
+            productIdInput.value = '';
+            productNameInput.value = '';
+            productPriceInput.value = '';
+            productDescriptionInput.value = '';
+            productImageInput.value = '';
+            saveProductButton.textContent = 'Simpan Produk';
+            cancelEditProductButton.classList.add('hidden');
+        });
+
+        cancelEditProductButton.addEventListener('click', () => {
+            productIdInput.value = '';
+            productNameInput.value = '';
+            productPriceInput.value = '';
+            productDescriptionInput.value = '';
+            productImageInput.value = '';
+            saveProductButton.textContent = 'Simpan Produk';
+            cancelEditProductButton.classList.add('hidden');
+        });
+
+        addPaymentMethodButton.addEventListener('click', () => {
+            const newMethod = newPaymentMethodInput.value.trim();
+            if (newMethod && !paymentMethods.includes(newMethod)) {
+                paymentMethods.push(newMethod);
+                saveState();
+                renderPaymentMethods();
+                newPaymentMethodInput.value = '';
+                showModal('Berhasil', 'Metode pembayaran baru ditambahkan!');
+            } else if (paymentMethods.includes(newMethod)) {
+                showModal('Peringatan', 'Metode pembayaran ini sudah ada.');
+            } else {
+                showModal('Peringatan', 'Nama metode pembayaran tidak boleh kosong.');
+            }
+        });
+
+        // --- Modal Event Listeners ---
+        modalCloseButton.addEventListener('click', hideModal);
+        modalOkButton.addEventListener('click', hideModal);
+        window.addEventListener('click', (event) => {
+            if (event.target === messageModal) {
+                hideModal();
+            }
+        });
+
+        // --- Initial Render on Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            renderCart();
+            renderPaymentMethods();
+            showSection('home'); // Show home section by default
+
+            // Check if admin was previously logged in (e.g., from refresh)
+            // For this simple client-side app, we assume they are logged out on refresh.
+            // In a real app, session storage or cookies would be used for this.
+            if (isAdminLoggedIn) {
+                 adminMenuItem.classList.remove('hidden');
+                 adminLogoutItem.classList.remove('hidden');
+                 navLinks.adminLogin.classList.add('hidden');
+            } else {
+                 adminMenuItem.classList.add('hidden');
+                 adminLogoutItem.classList.add('hidden');
+                 navLinks.adminLogin.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
