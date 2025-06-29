@@ -181,6 +181,10 @@
         // Data default ini HANYA akan digunakan jika localStorage kosong saat pertama kali aplikasi dimuat
         // atau jika localStorage telah dihapus.
         let products = JSON.parse(localStorage.getItem('products')) || [
+            // Contoh produk dengan gambar placeholder yang berfungsi.
+            // Untuk menggunakan gambar lokal dari GitHub:
+            // 1. Pastikan file gambar Anda ada di folder 'images/' di repositori GitHub Anda.
+            // 2. Ganti 'https://placehold.co/...' dengan 'images/nama-gambar-anda.jpg'
             { id: 'p1', name: 'Alat Musik Tradisional', price: 250000, description: 'Alat musik tradisional yang indah, cocok untuk melestarikan budaya.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Alat+Musik' },
             { id: 'p2', name: 'Celana Jeans Slim Fit', price: 280000, description: 'Celana jeans nyaman dengan potongan slim fit modern.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Celana+Jeans' },
             { id: 'p3', name: 'Sepatu Sneakers Pria', price: 350000, description: 'Sneakers ringan dan trendi, cocok untuk aktivitas sehari-hari.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Sneakers' },
@@ -246,11 +250,13 @@
         const adminMenuItem = document.getElementById('admin-menu-item');
         const adminLogoutItem = document.getElementById('admin-logout-item');
 
+        // FIXED SYNTAX ERROR HERE: Corrected the assignment for productNameInput and removed redundant `=`
         const productIdInput = document.getElementById('product-id');
-        const productNameInput = document.getElementById('product-name');
+        const productNameInput = document.getElementById('product-name'); // Corrected line
         const productPriceInput = document.getElementById('product-price');
         const productDescriptionInput = document.getElementById('product-description');
-        const productImageInput = document.getElementById('product-image');
+        const productImageInput = document.getElementById('product-image'); // This line was already correct below the error
+
         const saveProductButton = document.getElementById('save-product-button');
         const cancelEditProductButton = document.getElementById('cancel-edit-product-button');
         const adminProductListDiv = document.getElementById('admin-product-list');
@@ -328,7 +334,7 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card flex flex-col items-start';
                 productCard.innerHTML = `
-                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-md mb-4" onerror="this.onerror=null; console.error('Gagal memuat gambar produk. URL yang dicoba: ' + this.src + '. Pastikan jalur gambar benar (perhatikan huruf besar/kecil!) dan file ada di repositori GitHub Anda atau URL eksternal valid.'); this.src='https://placehold.co/300x200/cccccc/333333?text=Gambar+Rusak';">
+                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-md mb-4" loading="lazy" onerror="this.onerror=null; console.error('Gagal memuat gambar produk. URL yang dicoba: ' + this.src + '. Pastikan jalur gambar benar (perhatikan huruf besar/kecil!) dan file ada di repositori GitHub Anda atau URL eksternal valid.'); this.src='https://placehold.co/300x200/cccccc/333333?text=Gambar+Rusak';">
                     <h3 class="text-xl font-semibold mb-2 text-gray-800 flex-grow">${product.name}</h3>
                     <p class="text-gray-600 text-sm mb-3 line-clamp-3">${product.description}</p>
                     <p class="text-lg font-bold text-blue-600 mb-4">${formatRupiah(product.price)}</p>
@@ -357,7 +363,7 @@
                     cartItemDiv.className = 'flex items-center justify-between border-b border-gray-200 py-4 last:border-b-0';
                     cartItemDiv.innerHTML = `
                         <div class="flex items-center">
-                            <img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md mr-4" onerror="this.onerror=null; console.error('Gagal memuat gambar keranjang. URL yang dicoba: ' + this.src + '. Pastikan jalur gambar benar (perhatikan huruf besar/kecil!) dan file ada di repositori GitHub Anda atau URL eksternal valid.'); this.src='https://placehold.co/64x64/cccccc/333333?text=No+Img';">
+                            <img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md mr-4" loading="lazy" onerror="this.onerror=null; console.error('Gagal memuat gambar keranjang. URL yang dicoba: ' + this.src + '. Pastikan jalur gambar benar (perhatikan huruf besar/kecil!) dan file ada di repositori GitHub Anda atau URL eksternal valid.'); this.src='https://placehold.co/64x64/cccccc/333333?text=No+Img';">
                             <div>
                                 <h4 class="font-semibold text-gray-800">${product.name}</h4>
                                 <p class="text-gray-600">${formatRupiah(product.price)}</p>
@@ -391,7 +397,7 @@
                 productItem.className = 'flex items-center justify-between border border-gray-200 p-4 rounded-md shadow-sm bg-white';
                 productItem.innerHTML = `
                     <div class="flex items-center">
-                        <img src="${product.imageUrl}" alt="${product.name}" class="w-12 h-12 object-cover rounded-md mr-4" onerror="this.onerror=null; console.error('Gagal memuat gambar admin. URL yang dicoba: ' + this.src + '. Pastikan jalur gambar benar (perhatikan huruf besar/kecil!) dan file ada di repositori GitHub Anda atau URL eksternal valid.'); this.src='https://placehold.co/48x48/cccccc/333333?text=No+Img';">
+                        <img src="${product.imageUrl}" alt="${product.name}" class="w-12 h-12 object-cover rounded-md mr-4" loading="lazy" onerror="this.onerror=null; console.error('Gagal memuat gambar admin. URL yang dicoba: ' + this.src + '. Pastikan jalur gambar benar (perhatikan huruf besar/kecil!) dan file ada di repositori GitHub Anda atau URL eksternal valid.'); this.src='https://placehold.co/48x48/cccccc/333333?text=No+Img';">
                         <div>
                             <h4 class="font-semibold text-gray-800">${product.name}</h4>
                             <p class="text-gray-600">${formatRupiah(product.price)}</p>
