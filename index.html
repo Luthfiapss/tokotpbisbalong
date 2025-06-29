@@ -177,16 +177,18 @@
 
     <script>
         // --- Data Simulasi ---
+        // Mencoba memuat data dari localStorage, jika tidak ada, gunakan data default.
+        // Data default ini HANYA akan digunakan jika localStorage kosong saat pertama kali aplikasi dimuat
+        // atau jika localStorage telah dihapus.
         let products = JSON.parse(localStorage.getItem('products')) || [
-            // Menggunakan placeholder yang berfungsi untuk memastikan tampilan awal.
-            // Jika Anda ingin menggunakan gambar lokal dari GitHub, pastikan file gambar ada di jalur yang benar
-            // (misal: images/alat-musik-tradisional.jpg jika ada folder 'images' di root proyek)
             { id: 'p1', name: 'Alat Musik Tradisional', price: 250000, description: 'Alat musik tradisional yang indah, cocok untuk melestarikan budaya.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Alat+Musik' },
             { id: 'p2', name: 'Celana Jeans Slim Fit', price: 280000, description: 'Celana jeans nyaman dengan potongan slim fit modern.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Celana+Jeans' },
             { id: 'p3', name: 'Sepatu Sneakers Pria', price: 350000, description: 'Sneakers ringan dan trendi, cocok untuk aktivitas sehari-hari.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Sneakers' },
             { id: 'p4', name: 'Tas Ransel Laptop', price: 200000, description: 'Ransel multifungsi dengan kompartemen laptop, ideal untuk kerja atau kuliah.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Tas+Laptop' },
             { id: 'p5', name: 'Jam Tangan Digital', price: 95000, description: 'Jam tangan stylish dengan fitur digital lengkap.', imageUrl: 'https://placehold.co/300x200/cccccc/333333?text=Jam+Tangan' }
         ];
+        console.log('[DEBUG] Data dimuat dari localStorage:', products);
+
 
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let paymentMethods = JSON.parse(localStorage.getItem('paymentMethods')) || [
@@ -303,10 +305,16 @@
         }
 
         function saveState() {
-            localStorage.setItem('products', JSON.stringify(products));
-            localStorage.setItem('cart', JSON.stringify(cart));
-            localStorage.setItem('paymentMethods', JSON.stringify(paymentMethods));
-            localStorage.setItem('salesData', JSON.stringify(salesData));
+            try {
+                localStorage.setItem('products', JSON.stringify(products));
+                localStorage.setItem('cart', JSON.stringify(cart));
+                localStorage.setItem('paymentMethods', JSON.stringify(paymentMethods));
+                localStorage.setItem('salesData', JSON.stringify(salesData));
+                console.log('[DEBUG] Data berhasil disimpan ke localStorage:', { products, cart, paymentMethods, salesData });
+            } catch (e) {
+                console.error('[ERROR] Gagal menyimpan data ke localStorage:', e);
+                showModal('Peringatan', 'Gagal menyimpan perubahan. Pastikan browser Anda mengizinkan penyimpanan data lokal.');
+            }
         }
 
         // --- Render Functions ---
@@ -320,7 +328,7 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card flex flex-col items-start';
                 productCard.innerHTML = `
-                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-md mb-4" onerror="this.onerror=null; console.error('Gagal memuat gambar produk dari ' + this.src + '. Pastikan jalur gambar benar dan file ada di repositori GitHub.'); this.src='https://placehold.co/300x200/cccccc/333333?text=Gambar+Rusak';">
+                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-md mb-4" onerror="this.onerror=null; console.error('Gagal memuat gambar produk. URL yang dicoba: ' + this.src + '. Pastikan jalur gambar benar (perhatikan huruf besar/kecil!) dan file ada di repositori GitHub Anda atau URL eksternal valid.'); this.src='https://placehold.co/300x200/cccccc/333333?text=Gambar+Rusak';">
                     <h3 class="text-xl font-semibold mb-2 text-gray-800 flex-grow">${product.name}</h3>
                     <p class="text-gray-600 text-sm mb-3 line-clamp-3">${product.description}</p>
                     <p class="text-lg font-bold text-blue-600 mb-4">${formatRupiah(product.price)}</p>
@@ -349,7 +357,7 @@
                     cartItemDiv.className = 'flex items-center justify-between border-b border-gray-200 py-4 last:border-b-0';
                     cartItemDiv.innerHTML = `
                         <div class="flex items-center">
-                            <img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md mr-4" onerror="this.onerror=null; console.error('Gagal memuat gambar keranjang dari ' + this.src + '. Pastikan jalur gambar benar dan file ada di repositori GitHub.'); this.src='https://placehold.co/64x64/cccccc/333333?text=No+Img';">
+                            <img src="${product.imageUrl}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md mr-4" onerror="this.onerror=null; console.error('Gagal memuat gambar keranjang. URL yang dicoba: ' + this.src + '. Pastikan jalur gambar benar (perhatikan huruf besar/kecil!) dan file ada di repositori GitHub Anda atau URL eksternal valid.'); this.src='https://placehold.co/64x64/cccccc/333333?text=No+Img';">
                             <div>
                                 <h4 class="font-semibold text-gray-800">${product.name}</h4>
                                 <p class="text-gray-600">${formatRupiah(product.price)}</p>
@@ -383,7 +391,7 @@
                 productItem.className = 'flex items-center justify-between border border-gray-200 p-4 rounded-md shadow-sm bg-white';
                 productItem.innerHTML = `
                     <div class="flex items-center">
-                        <img src="${product.imageUrl}" alt="${product.name}" class="w-12 h-12 object-cover rounded-md mr-4" onerror="this.onerror=null; console.error('Gagal memuat gambar admin dari ' + this.src + '. Pastikan jalur gambar benar dan file ada di repositori GitHub.'); this.src='https://placehold.co/48x48/cccccc/333333?text=No+Img';">
+                        <img src="${product.imageUrl}" alt="${product.name}" class="w-12 h-12 object-cover rounded-md mr-4" onerror="this.onerror=null; console.error('Gagal memuat gambar admin. URL yang dicoba: ' + this.src + '. Pastikan jalur gambar benar (perhatikan huruf besar/kecil!) dan file ada di repositori GitHub Anda atau URL eksternal valid.'); this.src='https://placehold.co/48x48/cccccc/333333?text=No+Img';">
                         <div>
                             <h4 class="font-semibold text-gray-800">${product.name}</h4>
                             <p class="text-gray-600">${formatRupiah(product.price)}</p>
@@ -561,7 +569,7 @@
             isAdminLoggedIn = false;
             adminMenuItem.classList.add('hidden');
             adminLogoutItem.classList.add('hidden');
-            navLinks.adminLogin.classList.remove('hidden');
+            navLinks.adminLogin.classList.add('hidden'); // Hide login button once logged in
             showModal('Logout', 'Anda telah logout dari panel admin.');
             showSection('home');
         });
@@ -633,7 +641,6 @@
             const name = productNameInput.value.trim();
             const price = parseInt(productPriceInput.value);
             const description = productDescriptionInput.value.trim();
-            // Menggunakan imageUrl langsung dari input atau placeholder jika kosong
             const imageUrl = productImageInput.value.trim() || `https://placehold.co/300x200/cccccc/333333?text=${encodeURIComponent(name || 'Produk')}`;
 
             if (!name || isNaN(price) || price <= 0 || !description) {
@@ -655,10 +662,10 @@
                 showModal('Berhasil', 'Produk berhasil ditambahkan!');
             }
 
-            saveState();
-            renderProducts(); // Update user product list
-            renderAdminProducts(); // Update admin product list
-            // Clear form
+            saveState(); // Panggil fungsi saveState() setelah array 'products' diperbarui
+            renderProducts(); // Perbarui tampilan daftar produk pengguna
+            renderAdminProducts(); // Perbarui tampilan daftar produk admin
+            // Bersihkan formulir
             productIdInput.value = '';
             productNameInput.value = '';
             productPriceInput.value = '';
@@ -707,11 +714,11 @@
             renderProducts();
             renderCart();
             renderPaymentMethods();
-            showSection('home'); // Show home section by default
+            showSection('home'); // Tampilkan bagian home secara default
 
-            // Check if admin was previously logged in (e.g., from refresh)
-            // For this simple client-side app, we assume they are logged out on refresh.
-            // In a real app, session storage or cookies would be used for this.
+            // Periksa apakah admin sebelumnya login (misalnya, dari refresh)
+            // Untuk aplikasi sisi klien sederhana ini, kami berasumsi mereka logout saat refresh.
+            // Dalam aplikasi nyata, penyimpanan sesi atau cookie akan digunakan untuk ini.
             if (isAdminLoggedIn) {
                  adminMenuItem.classList.remove('hidden');
                  adminLogoutItem.classList.remove('hidden');
